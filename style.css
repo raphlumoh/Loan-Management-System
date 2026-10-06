@@ -1,0 +1,688 @@
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f7f5;
+    color: #222;
+}
+
+
+/* ================================
+   HEADER
+================================ */
+
+header {
+    width: 100%;
+    background: #126b35;
+    color: white;
+    padding: 25px 20px;
+    text-align: center;
+}
+
+
+header h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 30px;
+}
+
+
+header p {
+    margin: 8px 0 0;
+    text-align: center;
+}
+
+
+
+/* ================================
+   MAIN CONTAINER
+================================ */
+
+.container {
+    width: 95%;
+    max-width: 1200px;
+    margin: 25px auto;
+}
+
+
+
+/* ================================
+   DASHBOARD
+================================ */
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+.card h3 {
+    margin: 0 0 10px;
+
+    font-size: 15px;
+
+    color: #555;
+}
+
+
+.card p {
+    margin: 0;
+
+    font-size: 24px;
+
+    font-weight: bold;
+
+    color: #126b35;
+}
+
+
+
+/* ================================
+   FORM / TABLE BOX
+================================ */
+
+.form-box,
+.table-box {
+    background: white;
+
+    padding: 20px;
+
+    border-radius: 10px;
+
+    margin-bottom: 25px;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+.form-box h2,
+.table-box h2 {
+    margin-top: 0;
+
+    color: #126b35;
+}
+
+
+
+/* ================================
+   FORM
+================================ */
+
+.form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 15px;
+}
+
+
+.form-group {
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.form-group label {
+    margin-bottom: 6px;
+
+    font-weight: bold;
+}
+
+
+.form-group input,
+.form-group textarea {
+
+    padding: 11px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+
+    width: 100%;
+}
+
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+
+
+/* ================================
+   BUTTONS
+================================ */
+
+button {
+
+    border: none;
+
+    padding: 10px 15px;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+
+}
+
+
+button:hover {
+    opacity: 0.9;
+}
+
+
+.btn-primary {
+    background: #126b35;
+
+    color: white;
+}
+
+
+.btn-secondary {
+    background: #777;
+
+    color: white;
+}
+
+
+.btn-danger {
+    background: #c62828;
+
+    color: white;
+}
+
+
+.btn-warning {
+    background: #e69500;
+
+    color: white;
+}
+
+
+.btn-small {
+
+    padding: 7px 10px;
+
+    font-size: 12px;
+
+    margin: 2px;
+}
+
+
+.button-row {
+    margin-top: 15px;
+}
+
+
+
+/* ================================
+   SEARCH
+================================ */
+
+.search-box {
+    margin-bottom: 15px;
+}
+
+
+.search-box input {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+}
+
+
+
+/* ================================
+   TABLE
+================================ */
+
+.table-container {
+    overflow-x: auto;
+}
+
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 950px;
+}
+
+
+th,
+td {
+
+    padding: 10px;
+
+    border-bottom: 1px solid #ddd;
+
+    text-align: left;
+}
+
+
+th {
+
+    background: #126b35;
+
+    color: white;
+}
+
+
+tr:hover {
+
+    background: #f5f5f5;
+}
+
+
+.paid {
+
+    color: #126b35;
+
+    font-weight: bold;
+}
+
+
+.balance {
+
+    color: #c62828;
+
+    font-weight: bold;
+}
+
+
+.empty-message {
+
+    text-align: center;
+
+    padding: 20px;
+
+    color: #777;
+}
+
+
+
+/* ================================
+   MODAL
+================================ */
+
+.modal {
+
+    display: none;
+
+    position: fixed;
+
+    z-index: 1000;
+
+    left: 0;
+
+    top: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background:
+        rgba(0, 0, 0, 0.55);
+
+    overflow-y: auto;
+}
+
+
+.modal-content {
+
+    background: white;
+
+    width: 95%;
+
+    max-width: 900px;
+
+    margin: 40px auto;
+
+    padding: 25px;
+
+    border-radius: 10px;
+
+    position: relative;
+}
+
+
+.close {
+
+    position: absolute;
+
+    right: 20px;
+
+    top: 15px;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+    color: #555;
+}
+
+
+
+/* ================================
+   REPAYMENT SUMMARY
+================================ */
+
+.repayment-summary {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(5, 1fr);
+
+    gap: 10px;
+
+    margin: 20px 0;
+}
+
+
+.summary-box {
+
+    background: #f4f7f5;
+
+    padding: 15px;
+
+    border-radius: 8px;
+}
+
+
+.summary-box h4 {
+
+    margin: 0 0 8px;
+
+    font-size: 13px;
+
+    color: #ebe7e7;
+}
+
+
+.summary-box p {
+
+    margin: 0;
+
+    font-size: 18px;
+
+    font-weight: bold;
+}
+
+
+
+/* ================================
+   REPAYMENT FORM
+================================ */
+
+.repayment-form {
+
+    background: #f8f8f8;
+
+    padding: 15px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+}
+
+
+.repayment-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+}
+
+
+.repayment-grid .full-width {
+
+    grid-column: 1 / -1;
+}
+
+
+.repayment-grid label {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-weight: bold;
+}
+
+
+.repayment-grid input,
+.repayment-grid textarea {
+
+    width: 100%;
+
+    padding: 10px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 5px;
+
+    font-size: 14px;
+}
+
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 800px) {
+
+    .dashboard {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .form-grid,
+    .repayment-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .repayment-summary {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    header h1 {
+
+        font-size: 24px;
+    }
+
+
+    .dashboard {
+
+        grid-template-columns: 1fr;
+    }
+
+
+    .repayment-summary {
+
+        grid-template-columns: 1fr;
+    }
+
+}
+
+/* ================================
+   REPAYMENT HISTORY SCROLL
+================================ */
+
+#repaymentModal .table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+/* Keep the table width stable */
+#repaymentModal .table-container table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+}
+
+/* Keep table header visible while scrolling */
+#repaymentModal .table-container thead th {
+    position: sticky;
+    top: 0;
+    background: #126b35;
+    color: white;
+    z-index: 2;
+}
+
+/* Table cells */
+#repaymentModal .table-container th,
+#repaymentModal .table-container td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+/* Make scrollbar easier to use */
+#repaymentModal .table-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+#repaymentModal .table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#repaymentModal .table-container::-webkit-scrollbar-thumb {
+    background: #f6f1f1;
+    border-radius: 5px;
+}
+
+#repaymentModal .table-container::-webkit-scrollbar-thumb:hover {
+    background: #e3dede;
+}
+
+/* =================================
+   REPAYMENT HISTORY TABLE
+================================= */
+
+#repaymentModal .table-container {
+    background: #ffffff;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+/* Repayment table */
+#repaymentModal .table-container table {
+    width: 100%;
+    min-width: 650px;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+/* Repayment table header */
+#repaymentModal .table-container thead {
+    background: #126b35;
+}
+
+#repaymentModal .table-container thead th {
+    position: sticky;
+    top: 0;
+    background: #126b35;
+    color: #ffffff;
+    z-index: 10;
+    padding: 12px;
+    text-align: left;
+}
+
+/* Repayment rows */
+#repaymentModal .table-container tbody {
+    background: #ffffff;
+}
+
+#repaymentModal .table-container tbody tr {
+    background: #ffffff;
+}
+
+/* Alternate rows */
+#repaymentModal .table-container tbody tr:nth-child(even) {
+    background: #f8f8f8;
+}
+
+/* Cells */
+#repaymentModal .table-container td {
+    background: inherit;
+    color: #222222;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Hover */
+#repaymentModal .table-container tbody tr:hover {
+    background: #eef6f1;
+}
+
+/* Scrollbar */
+#repaymentModal .table-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+#repaymentModal .table-container::-webkit-scrollbar-track {
+    background: #eeeeee;
+}
+
+#repaymentModal .table-container::-webkit-scrollbar-thumb {
+    background: #888888;
+    border-radius: 5px;
+}
+
+#repaymentModal .table-container::-webkit-scrollbar-thumb:hover {
+    background: #555555;
+}
