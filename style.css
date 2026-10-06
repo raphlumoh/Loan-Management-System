@@ -552,84 +552,25 @@ tr:hover {
 
 }
 
-/* ================================
-   REPAYMENT HISTORY SCROLL
-================================ */
-
-#repaymentModal .table-container {
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: auto;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-}
-
-/* Keep the table width stable */
-#repaymentModal .table-container table {
-    width: 100%;
-    min-width: 650px;
-    border-collapse: collapse;
-}
-
-/* Keep table header visible while scrolling */
-#repaymentModal .table-container thead th {
-    position: sticky;
-    top: 0;
-    background: #126b35;
-    color: white;
-    z-index: 2;
-}
-
-/* Table cells */
-#repaymentModal .table-container th,
-#repaymentModal .table-container td {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-}
-
-/* Make scrollbar easier to use */
-#repaymentModal .table-container::-webkit-scrollbar {
-    width: 10px;
-}
-
-#repaymentModal .table-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-#repaymentModal .table-container::-webkit-scrollbar-thumb {
-    background: #f6f1f1;
-    border-radius: 5px;
-}
-
-#repaymentModal .table-container::-webkit-scrollbar-thumb:hover {
-    background: #e3dede;
-}
-
 /* =================================
    REPAYMENT HISTORY TABLE
 ================================= */
 
 #repaymentModal .table-container {
-    background: #ffffff;
+    width: 100%;
     max-height: 300px;
     overflow-y: auto;
     overflow-x: auto;
     border: 1px solid #ddd;
     border-radius: 8px;
+    background: #ffffff;
 }
 
-/* Repayment table */
 #repaymentModal .table-container table {
     width: 100%;
     min-width: 650px;
     border-collapse: collapse;
     background: #ffffff;
-}
-
-/* Repayment table header */
-#repaymentModal .table-container thead {
-    background: #126b35;
 }
 
 #repaymentModal .table-container thead th {
@@ -640,49 +581,133 @@ tr:hover {
     z-index: 10;
     padding: 12px;
     text-align: left;
-}
-
-/* Repayment rows */
-#repaymentModal .table-container tbody {
-    background: #ffffff;
+    white-space: nowrap;
 }
 
 #repaymentModal .table-container tbody tr {
     background: #ffffff;
 }
 
-/* Alternate rows */
 #repaymentModal .table-container tbody tr:nth-child(even) {
     background: #f8f8f8;
 }
 
-/* Cells */
 #repaymentModal .table-container td {
     background: inherit;
     color: #222222;
     padding: 10px;
     border-bottom: 1px solid #ddd;
+    white-space: nowrap;
 }
 
-/* Hover */
 #repaymentModal .table-container tbody tr:hover {
     background: #eef6f1;
 }
 
-/* Scrollbar */
-#repaymentModal .table-container::-webkit-scrollbar {
-    width: 10px;
+
+/* =================================
+   MOBILE REPAYMENT MODAL
+================================= */
+
+@media (max-width: 600px) {
+
+    #repaymentModal {
+        padding: 10px;
+    }
+
+    #repaymentModal .modal-content {
+        width: 100%;
+        max-width: 100%;
+        margin: 10px auto;
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    #repaymentModal .close {
+        right: 12px;
+        top: 8px;
+        font-size: 26px;
+    }
+
+    #repaymentModal .repayment-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin: 15px 0;
+    }
+
+    #repaymentModal .summary-box {
+        padding: 10px;
+    }
+
+    #repaymentModal .summary-box h4 {
+        font-size: 11px;
+    }
+
+    #repaymentModal .summary-box p {
+        font-size: 16px;
+    }
+
+    #repaymentModal .repayment-form {
+        padding: 12px;
+    }
+
+    #repaymentModal .repayment-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    #repaymentModal .repayment-grid .full-width {
+        grid-column: 1;
+    }
+
+    #repaymentModal .table-container {
+        width: 100%;
+        max-height: 280px;
+        overflow-x: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #repaymentModal .table-container table {
+        min-width: 650px;
+    }
+
+    #repaymentModal .table-container th,
+    #repaymentModal .table-container td {
+        padding: 8px;
+        font-size: 13px;
+    }
 }
 
-#repaymentModal .table-container::-webkit-scrollbar-track {
-    background: #eeeeee;
-}
 
-#repaymentModal .table-container::-webkit-scrollbar-thumb {
-    background: #888888;
-    border-radius: 5px;
-}
+/* =================================
+   VERY SMALL PHONES
+================================= */
 
-#repaymentModal .table-container::-webkit-scrollbar-thumb:hover {
-    background: #555555;
+@media (max-width: 400px) {
+
+    #repaymentModal {
+        padding: 5px;
+    }
+
+    #repaymentModal .modal-content {
+        padding: 12px;
+        margin: 5px auto;
+    }
+
+    #repaymentModal .repayment-summary {
+        grid-template-columns: 1fr;
+    }
+
+    #repaymentModal .summary-box {
+        padding: 10px;
+    }
+
+    #repaymentModal .table-container {
+        max-height: 250px;
+    }
+
+    #repaymentModal .table-container table {
+        min-width: 650px;
+    }
 }
