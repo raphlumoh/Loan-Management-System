@@ -26,10 +26,11 @@ const supabaseClient =
 // ============================================================
 
 let loans = [];
+
 let editingLoanId = null;
+
 let selectedLoanId = null;
 
-// True only when administrator is logged in.
 let isAdminLoggedIn = false;
 
 
@@ -104,19 +105,15 @@ const emptyMessage =
 // DASHBOARD ELEMENTS
 // ============================================================
 
-// Total Borrowers
 const totalBorrowers =
     document.getElementById("totalBorrowers");
 
-// Total Loans
 const totalLoans =
     document.getElementById("totalLoans");
 
-// Total Repaid
 const totalRepaid =
     document.getElementById("totalRepaid");
 
-// Total Outstanding
 const totalOutstanding =
     document.getElementById("totalOutstanding");
 
@@ -317,7 +314,9 @@ function updateLoanTableHeader() {
     }
 
 
+    // ========================================================
     // ADMIN HEADER
+    // ========================================================
 
     if (isAdminLoggedIn) {
 
@@ -340,8 +339,9 @@ function updateLoanTableHeader() {
     }
 
 
+    // ========================================================
     // PUBLIC HEADER
-    // Penalty is hidden from public.
+    // ========================================================
 
     headerRow.innerHTML = `
 
@@ -367,8 +367,6 @@ function updateAdminInterface(session) {
 
     isAdminLoggedIn = !!session;
 
-
-    // Update table header.
 
     updateLoanTableHeader();
 
@@ -426,8 +424,6 @@ function updateAdminInterface(session) {
     }
 
 
-    // Re-render the table after login/logout.
-
     if (loans.length > 0) {
 
         renderLoans(
@@ -438,26 +434,7 @@ function updateAdminInterface(session) {
     }
 
 
-    // Refresh repayment modal if open.
-
-    if (
-        selectedLoanId !== null &&
-        repaymentModal &&
-        repaymentModal.style.display !== "none"
-    ) {
-
-        const loan =
-            loans.find(
-                item =>
-                    Number(item.id) ===
-                    Number(selectedLoanId)
-            );
-
-        if (loan) {
-
-            updateRepaymentModal(loan);
-        }
-    }
+    updateDashboard();
 }
 
 
@@ -519,8 +496,11 @@ if (loginForm) {
                     .value;
 
 
-            loginMessage.textContent =
-                "Logging in...";
+            if (loginMessage) {
+
+                loginMessage.textContent =
+                    "Logging in...";
+            }
 
 
             const {
@@ -541,21 +521,21 @@ if (loginForm) {
 
                 console.error(error);
 
-                loginMessage.textContent =
-                    error.message;
+                if (loginMessage) {
+
+                    loginMessage.textContent =
+                        error.message;
+                }
 
                 return;
             }
 
 
-            console.log(
-                "Login successful:",
-                data
-            );
+            if (loginMessage) {
 
-
-            loginMessage.textContent =
-                "Login successful.";
+                loginMessage.textContent =
+                    "Login successful.";
+            }
 
 
             updateAdminInterface(
@@ -759,10 +739,6 @@ async function loadLoans() {
     );
 
 
-    // IMPORTANT:
-    // This restores the Total Loans dashboard
-    // for BOTH public and admin users.
-
     updateDashboard();
 }
 
@@ -770,7 +746,7 @@ async function loadLoans() {
 // ============================================================
 // RENDER LOANS
 //
-// Borrowers are automatically arranged A-Z.
+// Borrowers are arranged A-Z.
 // ============================================================
 
 function renderLoans(searchTerm = "") {
@@ -785,10 +761,6 @@ function renderLoans(searchTerm = "") {
             .trim()
             .toLowerCase();
 
-
-    // ========================================================
-    // SEARCH / FILTER
-    // ========================================================
 
     const filteredLoans =
         loans.filter(
@@ -844,7 +816,7 @@ function renderLoans(searchTerm = "") {
 
 
     // ========================================================
-    // ALPHABETICAL SORT A-Z
+    // ALPHABETICAL SORT
     // ========================================================
 
     filteredLoans.sort(
@@ -873,16 +845,8 @@ function renderLoans(searchTerm = "") {
     );
 
 
-    // ========================================================
-    // CLEAR TABLE
-    // ========================================================
-
     loanTableBody.innerHTML = "";
 
-
-    // ========================================================
-    // NO RESULTS
-    // ========================================================
 
     if (filteredLoans.length === 0) {
 
@@ -906,10 +870,6 @@ function renderLoans(searchTerm = "") {
         }
     }
 
-
-    // ========================================================
-    // CREATE ROWS
-    // ========================================================
 
     filteredLoans.forEach(
         (loan, index) => {
@@ -1098,27 +1058,53 @@ function renderLoans(searchTerm = "") {
 // ============================================================
 // UPDATE DASHBOARD
 //
-// This function runs for EVERYONE:
-// Public + Admin
+// IMPORTANT:
 //
-// Total Loans = number of loan records.
+// Total Borrowers = NUMBER of borrowers
+//
+// Total Loans = TOTAL ₦ VALUE of all loans
+//
+// Total Repaid = TOTAL payments received
+//
+// Total Outstanding = TOTAL remaining balance
 // ============================================================
 
 function updateDashboard() {
 
-    // Total number of borrowers.
+    // ========================================================
+    // TOTAL BORROWERS
+    // ========================================================
 
     const borrowerCount =
         loans.length;
 
 
-    // Total number of loans.
+    // ========================================================
+    // TOTAL LOANS
+    //
+    // THIS IS THE IMPORTANT FIX.
+    //
+    // It adds the actual loan amounts together.
+    // It does NOT display the number of loans.
+    // ========================================================
 
-    const loanCount =
-        loans.length;
+    const loanTotal =
+        loans.reduce(
+            (total, loan) => {
+
+                return total +
+                    Number(
+                        loan.loanAmount || 0
+                    );
+
+            },
+            0
+        );
 
 
-    // Total money already paid.
+    // ========================================================
+    // TOTAL REPAID
+    // ========================================================
 
     const repaid =
         loans.reduce(
@@ -1132,7 +1118,9 @@ function updateDashboard() {
         );
 
 
-    // Total outstanding balance.
+    // ========================================================
+    // TOTAL OUTSTANDING
+    // ========================================================
 
     const outstanding =
         loans.reduce(
@@ -1147,7 +1135,7 @@ function updateDashboard() {
 
 
     // ========================================================
-    // TOTAL BORROWERS
+    // DISPLAY TOTAL BORROWERS
     // ========================================================
 
     if (totalBorrowers) {
@@ -1158,37 +1146,43 @@ function updateDashboard() {
 
 
     // ========================================================
-    // TOTAL LOANS
+    // DISPLAY TOTAL LOANS
+    //
+    // NOW SHOWS ₦ AMOUNT
     // ========================================================
-    // This is intentionally updated for
-    // both public and admin users.
 
     if (totalLoans) {
 
         totalLoans.textContent =
-            loanCount;
+            formatMoney(
+                loanTotal
+            );
     }
 
 
     // ========================================================
-    // TOTAL REPAID
+    // DISPLAY TOTAL REPAID
     // ========================================================
 
     if (totalRepaid) {
 
         totalRepaid.textContent =
-            formatMoney(repaid);
+            formatMoney(
+                repaid
+            );
     }
 
 
     // ========================================================
-    // TOTAL OUTSTANDING
+    // DISPLAY TOTAL OUTSTANDING
     // ========================================================
 
     if (totalOutstanding) {
 
         totalOutstanding.textContent =
-            formatMoney(outstanding);
+            formatMoney(
+                outstanding
+            );
     }
 }
 
@@ -1766,7 +1760,7 @@ function updateRepaymentModal(loan) {
 
 
     // ========================================================
-    // PENALTY SUMMARY
+    // HIDE PENALTY FROM PUBLIC
     // ========================================================
 
     const penaltySummaryBox =
@@ -1783,10 +1777,6 @@ function updateRepaymentModal(loan) {
     }
 
 
-    // ========================================================
-    // PENALTY INPUT
-    // ========================================================
-
     const penaltyInputGroup =
         paymentPenalty
             ?.closest(".form-group");
@@ -1800,10 +1790,6 @@ function updateRepaymentModal(loan) {
                 : "none";
     }
 
-
-    // ========================================================
-    // REPAYMENT FORM
-    // ========================================================
 
     if (repaymentForm) {
 
@@ -1872,10 +1858,6 @@ function displayRepaymentHistory(loan) {
                 document.createElement("tr");
 
 
-            // =================================================
-            // ADMIN HISTORY
-            // =================================================
-
             if (isAdminLoggedIn) {
 
                 row.innerHTML = `
@@ -1918,10 +1900,6 @@ function displayRepaymentHistory(loan) {
                 `;
 
             } else {
-
-                // =================================================
-                // PUBLIC HISTORY
-                // =================================================
 
                 row.innerHTML = `
 
@@ -2135,12 +2113,6 @@ if (repaymentForm) {
             }
 
 
-            // Allow:
-            // Payment only
-            // Penalty only
-            // Payment + penalty
-            // Note-only record
-
             if (
                 amount === 0 &&
                 penalty === 0 &&
@@ -2201,8 +2173,6 @@ if (repaymentForm) {
                 "Repayment record saved successfully."
             );
 
-
-            // Clear fields.
 
             paymentAmount.value =
                 "0";
@@ -2279,11 +2249,6 @@ window.addEventListener(
 // START APPLICATION
 // ============================================================
 
-// Check login.
-
 checkAdminSession();
-
-
-// Load all loan information.
 
 loadLoans();
