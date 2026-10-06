@@ -1,192 +1,125 @@
-// ======================================================
-// SUPABASE CONNECTION
-// ======================================================
+// ============================================================
+// LOAN MANAGEMENT SYSTEM
+// Complete script.js
+// ============================================================
 
-const SUPABASE_URL = "https://ynqxjcugrdsogwrkhgor.supabase.co";
+
+// ============================================================
+// SUPABASE CONNECTION
+// ============================================================
+
+const SUPABASE_URL =
+    "https://ynqxjcugrdsogwrkhgor.supabase.co";
 
 const SUPABASE_KEY =
     "sb_publishable_4W0EBlrR4djDQ5QXTFtLkg_esHU8L_-";
 
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
-
-// ===============================
-// ADMIN LOGIN & SESSION
-// ===============================
-
-const loginForm = document.getElementById("loginForm");
-const loginMessage = document.getElementById("loginMessage");
-const adminLoginBox = document.getElementById("adminLoginBox");
-const adminStatusBox = document.getElementById("adminStatusBox");
-const adminStatusMessage = document.getElementById("adminStatusMessage");
-const logoutButton = document.getElementById("logoutButton");
-
-// Admin-only borrower form
-const adminBorrowerForm =
-    document.getElementById("adminBorrowerForm");  
-
-// Check current login session
-async function checkAdminSession() {
-
-    const { data, error } = await supabaseClient.auth.getSession();
-
-    if (error) {
-        console.error("Session check error:", error);
-        return;
-    }
-
-    updateAdminInterface(data.session);
-}
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
 
-// Update the login/logout display
-function updateAdminInterface(session) {
-
-    if (session) {
-
-        // Admin is logged in
-        adminLoginBox.style.display = "none";
-        adminStatusBox.style.display = "block";
-
-        adminStatusMessage.textContent =
-            "You are logged in as administrator.";
-
-        // Show borrower form
-        if (adminBorrowerForm) {
-            adminBorrowerForm.style.display = "block";
-        }
-
-    } else {
-
-        // Nobody is logged in
-        adminLoginBox.style.display = "block";
-        adminStatusBox.style.display = "none";
-
-        // Hide borrower form
-        if (adminBorrowerForm) {
-            adminBorrowerForm.style.display = "none";
-        }
-    }
-}
-
-// Login
-if (loginForm) {
-
-    loginForm.addEventListener("submit", async function (event) {
-
-        event.preventDefault();
-
-        const email =
-            document.getElementById("loginEmail").value.trim();
-
-        const password =
-            document.getElementById("loginPassword").value;
-
-        loginMessage.textContent = "Logging in...";
-
-        const { data, error } =
-            await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-        if (error) {
-
-            console.error(error);
-
-            loginMessage.textContent =
-                error.message;
-
-            return;
-        }
-
-        console.log("Login successful:", data);
-
-        loginMessage.textContent =
-            "Login successful.";
-
-        updateAdminInterface(data.session);
-    });
-}
-
-
-// Logout
-if (logoutButton) {
-
-    logoutButton.addEventListener("click", async function () {
-
-        const { error } =
-            await supabaseClient.auth.signOut();
-
-        if (error) {
-
-            console.error(error);
-
-            alert("Logout failed: " + error.message);
-
-            return;
-        }
-
-        updateAdminInterface(null);
-
-        alert("You have been logged out.");
-    });
-}
-
-
-// Automatically update interface if auth changes
-supabaseClient.auth.onAuthStateChange(
-    function (event, session) {
-
-        console.log("Auth event:", event);
-
-        updateAdminInterface(session);
-    }
-);
-
-
-// Check session when page loads
-checkAdminSession();
-
-
-
-// ======================================================
+// ============================================================
 // APPLICATION STATE
-// ======================================================
+// ============================================================
 
 let loans = [];
-
 let editingLoanId = null;
-
 let selectedLoanId = null;
 
+// True only when administrator is logged in.
+let isAdminLoggedIn = false;
 
-// ======================================================
-// GET ELEMENTS
-// ======================================================
 
-const loanForm = document.getElementById("loanForm");
-const formTitle = document.getElementById("formTitle");
+// ============================================================
+// LOGIN / ADMIN ELEMENTS
+// ============================================================
 
-const borrowerName = document.getElementById("borrowerName");
-const guarantor1 = document.getElementById("guarantor1");
-const guarantor2 = document.getElementById("guarantor2");
-const loanAmount = document.getElementById("loanAmount");
-const repayAmount = document.getElementById("repayAmount");
+const loginForm =
+    document.getElementById("loginForm");
 
-const saveButton = document.getElementById("saveButton");
-const cancelButton = document.getElementById("cancelButton");
+const loginMessage =
+    document.getElementById("loginMessage");
 
-const searchInput = document.getElementById("searchInput");
-const loanTableBody = document.getElementById("loanTableBody");
-const emptyMessage = document.getElementById("emptyMessage");
+const adminLoginBox =
+    document.getElementById("adminLoginBox");
 
-const totalBorrowers = document.getElementById("totalBorrowers");
-const totalLoans = document.getElementById("totalLoans");
-const totalRepaid = document.getElementById("totalRepaid");
-const totalOutstanding = document.getElementById("totalOutstanding");
+const adminStatusBox =
+    document.getElementById("adminStatusBox");
+
+const adminStatusMessage =
+    document.getElementById("adminStatusMessage");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+const adminBorrowerForm =
+    document.getElementById("adminBorrowerForm");
+
+
+// ============================================================
+// LOAN ELEMENTS
+// ============================================================
+
+const loanForm =
+    document.getElementById("loanForm");
+
+const formTitle =
+    document.getElementById("formTitle");
+
+const borrowerName =
+    document.getElementById("borrowerName");
+
+const guarantor1 =
+    document.getElementById("guarantor1");
+
+const guarantor2 =
+    document.getElementById("guarantor2");
+
+const loanAmount =
+    document.getElementById("loanAmount");
+
+const repayAmount =
+    document.getElementById("repayAmount");
+
+const saveButton =
+    document.getElementById("saveButton");
+
+const cancelButton =
+    document.getElementById("cancelButton");
+
+const searchInput =
+    document.getElementById("searchInput");
+
+const loanTableBody =
+    document.getElementById("loanTableBody");
+
+const emptyMessage =
+    document.getElementById("emptyMessage");
+
+
+// ============================================================
+// DASHBOARD ELEMENTS
+// ============================================================
+
+const totalBorrowers =
+    document.getElementById("totalBorrowers");
+
+const totalLoans =
+    document.getElementById("totalLoans");
+
+const totalRepaid =
+    document.getElementById("totalRepaid");
+
+const totalOutstanding =
+    document.getElementById("totalOutstanding");
+
+
+// ============================================================
+// REPAYMENT MODAL ELEMENTS
+// ============================================================
 
 const repaymentModal =
     document.getElementById("repaymentModal");
@@ -228,18 +161,26 @@ const repaymentHistory =
     document.getElementById("repaymentHistory");
 
 
-// ======================================================
-// HELPER FUNCTIONS
-// ======================================================
+// ============================================================
+// FORMAT MONEY
+// ============================================================
 
 function formatMoney(amount) {
 
-    return "₦" + Number(amount || 0).toLocaleString("en-NG", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
+    return "₦" +
+        Number(amount || 0).toLocaleString(
+            "en-NG",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
 }
 
+
+// ============================================================
+// SECURITY / HTML ESCAPE
+// ============================================================
 
 function escapeHTML(value) {
 
@@ -252,13 +193,14 @@ function escapeHTML(value) {
 }
 
 
-// ======================================================
-// CONVERT SUPABASE LOAN INTO APP FORMAT
-// ======================================================
+// ============================================================
+// CONVERT DATABASE LOAN
+// ============================================================
 
 function convertLoan(row) {
 
     return {
+
         id: row.id,
 
         borrower: row.borrower_name,
@@ -267,9 +209,11 @@ function convertLoan(row) {
 
         guarantor2: row.guarantor2,
 
-        loanAmount: Number(row.loan_amount || 0),
+        loanAmount:
+            Number(row.loan_amount || 0),
 
-        repayAmount: Number(row.repay_amount || 0),
+        repayAmount:
+            Number(row.repay_amount || 0),
 
         repayments: [],
 
@@ -278,125 +222,18 @@ function convertLoan(row) {
 }
 
 
-// ======================================================
-// LOAD REPAYMENTS
-// ======================================================
-
-async function loadRepayments() {
-
-    const { data, error } = await supabaseClient
-        .from("repayments")
-        .select("*")
-        .order("payment_date", {
-            ascending: true
-        });
-
-    if (error) {
-
-        console.error("Error loading repayments:", error);
-
-        alert(
-            "Unable to load repayment records.\n\n" +
-            error.message
-        );
-
-        return;
-    }
-
-
-    loans.forEach(function (loan) {
-
-        loan.repayments = [];
-    });
-
-
-    data.forEach(function (payment) {
-
-        const loan = loans.find(
-            loanRecord =>
-                Number(loanRecord.id) === Number(payment.loan_id)
-        );
-
-        if (!loan) return;
-
-
-        loan.repayments.push({
-
-            id: payment.id,
-
-            date: payment.payment_date,
-
-            amount: Number(payment.payment_amount || 0),
-
-            penalty: Number(payment.penalty || 0),
-
-            note: payment.note || ""
-        });
-    });
-}
-
-
-// ======================================================
-// LOAD LOANS
-// ======================================================
-
-async function loadLoans() {
-
-    loanTableBody.innerHTML = `
-        <tr>
-            <td colspan="10" style="text-align:center; padding:20px;">
-                Loading borrowers...
-            </td>
-        </tr>
-    `;
-
-
-    const { data, error } = await supabaseClient
-        .from("loans")
-        .select("*")
-        .order("id", {
-            ascending: false
-        });
-
-
-    if (error) {
-
-        console.error("Error loading loans:", error);
-
-        loanTableBody.innerHTML = "";
-
-        alert(
-            "Unable to load loan records.\n\n" +
-            error.message
-        );
-
-        return;
-    }
-
-
-    loans = data.map(convertLoan);
-
-
-    await loadRepayments();
-
-
-    renderLoans();
-
-    updateDashboard();
-}
-
-
-// ======================================================
-// CALCULATE TOTAL PAID
-// ======================================================
+// ============================================================
+// TOTAL PAID
+// ============================================================
 
 function getTotalPaid(loan) {
 
-    if (!loan.repayments) return 0;
-
+    if (!loan.repayments) {
+        return 0;
+    }
 
     return loan.repayments.reduce(
-        function (total, payment) {
+        (total, payment) => {
 
             return total +
                 Number(payment.amount || 0);
@@ -407,17 +244,18 @@ function getTotalPaid(loan) {
 }
 
 
-// ======================================================
-// CALCULATE TOTAL PENALTY
-// ======================================================
+// ============================================================
+// TOTAL PENALTY
+// ============================================================
 
 function getTotalPenalty(loan) {
 
-    if (!loan.repayments) return 0;
-
+    if (!loan.repayments) {
+        return 0;
+    }
 
     return loan.repayments.reduce(
-        function (total, payment) {
+        (total, payment) => {
 
             return total +
                 Number(payment.penalty || 0);
@@ -428,9 +266,13 @@ function getTotalPenalty(loan) {
 }
 
 
-// ======================================================
-// CALCULATE BALANCE
-// ======================================================
+// ============================================================
+// BALANCE
+//
+// Balance = Total Repay
+//         + Total Penalties
+//         - Total Payments
+// ============================================================
 
 function getBalance(loan) {
 
@@ -443,7 +285,6 @@ function getBalance(loan) {
     const penalty =
         getTotalPenalty(loan);
 
-
     return Math.max(
         0,
         repay + penalty - paid
@@ -451,459 +292,403 @@ function getBalance(loan) {
 }
 
 
-// ======================================================
-// ADD / UPDATE LOAN
-// ======================================================
+// ============================================================
+// UPDATE LOAN TABLE HEADER
+// ============================================================
 
-loanForm.addEventListener(
-    "submit",
-    async function (event) {
+function updateLoanTableHeader() {
 
-        event.preventDefault();
+    const table =
+        loanTableBody?.closest("table");
 
-
-        const borrower =
-            borrowerName.value.trim();
-
-        const g1 =
-            guarantor1.value.trim();
-
-        const g2 =
-            guarantor2.value.trim();
-
-        const loan =
-            Number(loanAmount.value);
-
-        const repay =
-            Number(repayAmount.value);
-
-
-        if (!borrower || !g1 || !g2) {
-
-            alert(
-                "Please fill in all borrower and guarantor fields."
-            );
-
-            return;
-        }
-
-
-        if (loan <= 0 || repay <= 0) {
-
-            alert(
-                "Please enter valid loan and repayment amounts."
-            );
-
-            return;
-        }
-
-
-        saveButton.disabled = true;
-
-
-        // ==================================================
-        // UPDATE EXISTING LOAN
-        // ==================================================
-
-        if (editingLoanId !== null) {
-
-            const { error } = await supabaseClient
-                .from("loans")
-                .update({
-
-                    borrower_name: borrower,
-
-                    guarantor1: g1,
-
-                    guarantor2: g2,
-
-                    loan_amount: loan,
-
-                    repay_amount: repay
-
-                })
-                .eq("id", editingLoanId);
-
-
-            if (error) {
-
-                console.error(
-                    "Update loan error:",
-                    error
-                );
-
-                alert(
-                    "Unable to update borrower.\n\n" +
-                    error.message
-                );
-
-                saveButton.disabled = false;
-
-                return;
-            }
-
-
-            alert(
-                "Borrower updated successfully."
-            );
-
-        }
-
-
-        // ==================================================
-        // ADD NEW LOAN
-        // ==================================================
-
-        else {
-
-            const { error } = await supabaseClient
-                .from("loans")
-                .insert({
-
-                    borrower_name: borrower,
-
-                    guarantor1: g1,
-
-                    guarantor2: g2,
-
-                    loan_amount: loan,
-
-                    repay_amount: repay
-
-                });
-
-
-            if (error) {
-
-                console.error(
-                    "Insert loan error:",
-                    error
-                );
-
-                alert(
-                    "Unable to save borrower.\n\n" +
-                    error.message
-                );
-
-                saveButton.disabled = false;
-
-                return;
-            }
-
-
-            alert(
-                "Borrower saved successfully."
-            );
-        }
-
-
-        saveButton.disabled = false;
-
-
-        resetLoanForm();
-
-        await loadLoans();
+    if (!table) {
+        return;
     }
-);
 
+    const headerRow =
+        table.querySelector("thead tr");
 
-// ======================================================
-// RESET FORM
-// ======================================================
-
-function resetLoanForm() {
-
-    loanForm.reset();
-
-    editingLoanId = null;
-
-    formTitle.textContent =
-        "Add New Borrower";
-
-    saveButton.textContent =
-        "Save Borrower";
-
-    cancelButton.style.display =
-        "none";
-}
-
-
-// ======================================================
-// CANCEL EDIT
-// ======================================================
-
-cancelButton.addEventListener(
-    "click",
-    function () {
-
-        resetLoanForm();
-    }
-);
-
-
-// ======================================================
-// RENDER LOANS
-// ======================================================
-
-function renderLoans(data = loans) {
-
-    loanTableBody.innerHTML = "";
-
-
-    if (data.length === 0) {
-
-        emptyMessage.style.display =
-            "block";
-
+    if (!headerRow) {
         return;
     }
 
 
-    emptyMessage.style.display =
-        "none";
+    // ADMIN HEADER
 
+    if (isAdminLoggedIn) {
 
-    data.forEach(function (loan, index) {
+        headerRow.innerHTML = `
 
-        const paid =
-            getTotalPaid(loan);
+            <th>ID</th>
+            <th>Borrower</th>
+            <th>Guarantor 1</th>
+            <th>Guarantor 2</th>
+            <th>Loan Amount</th>
+            <th>Total Repay</th>
+            <th>Paid</th>
+            <th>Penalty</th>
+            <th>Balance</th>
+            <th>Actions</th>
 
-        const penalty =
-            getTotalPenalty(loan);
-
-        const balance =
-            getBalance(loan);
-
-
-        const row =
-            document.createElement("tr");
-
-
-        row.innerHTML = `
-
-            <td>
-                ${index + 1}
-            </td>
-
-            <td>
-                ${escapeHTML(loan.borrower)}
-            </td>
-
-            <td>
-                ${escapeHTML(loan.guarantor1)}
-            </td>
-
-            <td>
-                ${escapeHTML(loan.guarantor2)}
-            </td>
-
-            <td>
-                ${formatMoney(loan.loanAmount)}
-            </td>
-
-            <td>
-                ${formatMoney(loan.repayAmount)}
-            </td>
-
-            <td>
-                ${formatMoney(paid)}
-            </td>
-
-            <td>
-                ${formatMoney(penalty)}
-            </td>
-
-            <td>
-                ${formatMoney(balance)}
-            </td>
-
-            <td>
-
-                <button
-                    type="button"
-                    class="repayment-btn"
-                    data-action="repayment"
-                    data-id="${loan.id}">
-                    Repayment
-                </button>
-
-                <button
-                    type="button"
-                    class="edit-btn"
-                    data-action="edit"
-                    data-id="${loan.id}">
-                    Edit
-                </button>
-
-                <button
-                    type="button"
-                    class="delete-btn"
-                    data-action="delete"
-                    data-id="${loan.id}">
-                    Delete
-                </button>
-
-            </td>
         `;
 
-
-        loanTableBody.appendChild(row);
-    });
-}
-
-
-// ======================================================
-// TABLE BUTTON ACTIONS
-// ======================================================
-
-loanTableBody.addEventListener(
-    "click",
-    function (event) {
-
-        const button =
-            event.target.closest("button");
-
-
-        if (!button) return;
-
-
-        const id =
-            Number(button.dataset.id);
-
-        const action =
-            button.dataset.action;
-
-
-        if (action === "repayment") {
-
-            openRepayment(id);
-
-        }
-
-        else if (action === "edit") {
-
-            editLoan(id);
-
-        }
-
-        else if (action === "delete") {
-
-            deleteLoan(id);
-        }
-    }
-);
-
-
-// ======================================================
-// EDIT LOAN
-// ======================================================
-
-function editLoan(id) {
-
-    const loan =
-        loans.find(
-            loanRecord =>
-                Number(loanRecord.id) === Number(id)
-        );
-
-
-    if (!loan) {
-
-        alert(
-            "Borrower record not found."
-        );
-
         return;
     }
 
 
-    editingLoanId = id;
+    // PUBLIC HEADER
+    // Penalty is hidden from public.
 
+    headerRow.innerHTML = `
 
-    borrowerName.value =
-        loan.borrower;
+        <th>ID</th>
+        <th>Borrower</th>
+        <th>Guarantor 1</th>
+        <th>Guarantor 2</th>
+        <th>Loan Amount</th>
+        <th>Total Repay</th>
+        <th>Paid</th>
+        <th>Balance</th>
+        <th>Actions</th>
 
-    guarantor1.value =
-        loan.guarantor1;
-
-    guarantor2.value =
-        loan.guarantor2;
-
-    loanAmount.value =
-        loan.loanAmount;
-
-    repayAmount.value =
-        loan.repayAmount;
-
-
-    formTitle.textContent =
-        "Edit Borrower";
-
-    saveButton.textContent =
-        "Update Borrower";
-
-    cancelButton.style.display =
-        "inline-block";
-
-
-    window.scrollTo({
-
-        top: 0,
-
-        behavior: "smooth"
-
-    });
+    `;
 }
 
 
-// ======================================================
-// DELETE LOAN
-// ======================================================
+// ============================================================
+// UPDATE ADMIN INTERFACE
+// ============================================================
 
-async function deleteLoan(id) {
+function updateAdminInterface(session) {
 
-    const loan =
-        loans.find(
-            loanRecord =>
-                Number(loanRecord.id) === Number(id)
-        );
+    isAdminLoggedIn = !!session;
 
 
-    if (!loan) {
+    // Update table header.
 
-        alert(
-            "Borrower record not found."
-        );
+    updateLoanTableHeader();
 
-        return;
+
+    if (session) {
+
+        if (adminLoginBox) {
+
+            adminLoginBox.style.display =
+                "none";
+        }
+
+
+        if (adminStatusBox) {
+
+            adminStatusBox.style.display =
+                "block";
+        }
+
+
+        if (adminStatusMessage) {
+
+            adminStatusMessage.textContent =
+                "You are logged in as administrator.";
+        }
+
+
+        if (adminBorrowerForm) {
+
+            adminBorrowerForm.style.display =
+                "block";
+        }
+
+    } else {
+
+        if (adminLoginBox) {
+
+            adminLoginBox.style.display =
+                "block";
+        }
+
+
+        if (adminStatusBox) {
+
+            adminStatusBox.style.display =
+                "none";
+        }
+
+
+        if (adminBorrowerForm) {
+
+            adminBorrowerForm.style.display =
+                "none";
+        }
     }
 
 
-    const answer =
-        confirm(
-            `Are you sure you want to delete ${loan.borrower}?`
+    // Re-render table when login/logout changes.
+
+    if (loans.length > 0) {
+
+        renderLoans(
+            searchInput
+                ? searchInput.value
+                : ""
         );
+    }
 
 
-    if (!answer) return;
+    // Refresh repayment modal if it is open.
+
+    if (
+        selectedLoanId !== null &&
+        repaymentModal &&
+        repaymentModal.style.display !== "none"
+    ) {
+
+        const loan =
+            loans.find(
+                item =>
+                    Number(item.id) ===
+                    Number(selectedLoanId)
+            );
+
+        if (loan) {
+
+            updateRepaymentModal(loan);
+        }
+    }
+}
 
 
-    const { error } =
-        await supabaseClient
-            .from("loans")
-            .delete()
-            .eq("id", id);
+// ============================================================
+// CHECK ADMIN SESSION
+// ============================================================
+
+async function checkAdminSession() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient.auth.getSession();
 
 
     if (error) {
 
         console.error(
-            "Delete loan error:",
+            "Session check error:",
+            error
+        );
+
+        updateAdminInterface(null);
+
+        return;
+    }
+
+
+    updateAdminInterface(
+        data.session
+    );
+}
+
+
+// ============================================================
+// LOGIN
+// ============================================================
+
+if (loginForm) {
+
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            const email =
+                document
+                    .getElementById("loginEmail")
+                    .value
+                    .trim();
+
+
+            const password =
+                document
+                    .getElementById("loginPassword")
+                    .value;
+
+
+            loginMessage.textContent =
+                "Logging in...";
+
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth
+                    .signInWithPassword({
+
+                        email: email,
+
+                        password: password
+
+                    });
+
+
+            if (error) {
+
+                console.error(error);
+
+                loginMessage.textContent =
+                    error.message;
+
+                return;
+            }
+
+
+            console.log(
+                "Login successful:",
+                data
+            );
+
+
+            loginMessage.textContent =
+                "Login successful.";
+
+
+            updateAdminInterface(
+                data.session
+            );
+        }
+    );
+}
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        async function () {
+
+            const {
+                error
+            } =
+                await supabaseClient.auth
+                    .signOut();
+
+
+            if (error) {
+
+                console.error(error);
+
+                alert(
+                    "Logout failed: " +
+                    error.message
+                );
+
+                return;
+            }
+
+
+            updateAdminInterface(null);
+
+
+            alert(
+                "You have been logged out."
+            );
+        }
+    );
+}
+
+
+// ============================================================
+// AUTH STATE CHANGE
+// ============================================================
+
+supabaseClient.auth.onAuthStateChange(
+    function (event, session) {
+
+        console.log(
+            "Auth event:",
+            event
+        );
+
+
+        updateAdminInterface(
+            session
+        );
+    }
+);
+
+
+// ============================================================
+// LOAD REPAYMENTS
+// ============================================================
+
+async function loadRepayments() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("repayments")
+            .select("*")
+            .order(
+                "payment_date",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Error loading repayments:",
+            error
+        );
+
+        return [];
+    }
+
+
+    return data || [];
+}
+
+
+// ============================================================
+// LOAD LOANS
+// ============================================================
+
+async function loadLoans() {
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from("loans")
+            .select("*")
+            .order(
+                "id",
+                {
+                    ascending: true
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Error loading loans:",
             error
         );
 
         alert(
-            "Unable to delete borrower.\n\n" +
+            "Could not load borrowers: " +
             error.message
         );
 
@@ -911,533 +696,419 @@ async function deleteLoan(id) {
     }
 
 
-    alert(
-        "Borrower deleted successfully."
+    loans =
+        (data || []).map(
+            convertLoan
+        );
+
+
+    const repayments =
+        await loadRepayments();
+
+
+    loans.forEach(
+        loan => {
+
+            loan.repayments =
+                repayments
+                    .filter(
+                        repayment =>
+                            Number(
+                                repayment.loan_id
+                            ) ===
+                            Number(loan.id)
+                    )
+                    .map(
+                        repayment => ({
+
+                            id:
+                                repayment.id,
+
+                            date:
+                                repayment.payment_date,
+
+                            amount:
+                                Number(
+                                    repayment.payment_amount ||
+                                    0
+                                ),
+
+                            penalty:
+                                Number(
+                                    repayment.penalty ||
+                                    0
+                                ),
+
+                            note:
+                                repayment.note ||
+                                ""
+                        })
+                    );
+        }
     );
 
 
-    await loadLoans();
+    renderLoans(
+        searchInput
+            ? searchInput.value
+            : ""
+    );
+
+
+    updateDashboard();
 }
 
 
-// ======================================================
-// SEARCH
-// ======================================================
+// ============================================================
+// RENDER LOANS
+//
+// IMPORTANT:
+// Borrowers are automatically arranged A-Z.
+// This changes display order only.
+// It does NOT change database IDs.
+// ============================================================
 
-searchInput.addEventListener(
-    "input",
-    function () {
+function renderLoans(searchTerm = "") {
 
-        const search =
-            searchInput.value
-                .toLowerCase()
-                .trim();
+    if (!loanTableBody) {
+        return;
+    }
 
 
-        const results =
-            loans.filter(
-                function (loan) {
+    const term =
+        String(searchTerm || "")
+            .trim()
+            .toLowerCase();
 
-                    return (
 
+    // ========================================================
+    // FILTER SEARCH RESULTS
+    // ========================================================
+
+    const filteredLoans =
+        loans.filter(
+            loan => {
+
+                if (!term) {
+                    return true;
+                }
+
+
+                return (
+
+                    String(
                         loan.borrower
-                            .toLowerCase()
-                            .includes(search)
+                    )
+                        .toLowerCase()
+                        .includes(term)
 
-                        ||
+                    ||
 
+                    String(
                         loan.guarantor1
-                            .toLowerCase()
-                            .includes(search)
+                    )
+                        .toLowerCase()
+                        .includes(term)
 
-                        ||
+                    ||
 
+                    String(
                         loan.guarantor2
-                            .toLowerCase()
-                            .includes(search)
+                    )
+                        .toLowerCase()
+                        .includes(term)
 
-                    );
+                    ||
+
+                    String(
+                        loan.loanAmount
+                    )
+                        .toLowerCase()
+                        .includes(term)
+
+                    ||
+
+                    String(
+                        loan.repayAmount
+                    )
+                        .toLowerCase()
+                        .includes(term)
+                );
+            }
+        );
+
+
+    // ========================================================
+    // SORT BORROWERS ALPHABETICALLY A-Z
+    // ========================================================
+
+    filteredLoans.sort(
+        (a, b) => {
+
+            const nameA =
+                String(
+                    a.borrower || ""
+                ).trim();
+
+
+            const nameB =
+                String(
+                    b.borrower || ""
+                ).trim();
+
+
+            return nameA.localeCompare(
+                nameB,
+                "en",
+                {
+                    sensitivity: "base"
                 }
             );
+        }
+    );
 
 
-        renderLoans(results);
-    }
-);
+    // ========================================================
+    // CLEAR TABLE
+    // ========================================================
+
+    loanTableBody.innerHTML = "";
 
 
-// ======================================================
-// OPEN REPAYMENT
-// ======================================================
+    // ========================================================
+    // NO RESULTS
+    // ========================================================
 
-function openRepayment(id) {
+    if (filteredLoans.length === 0) {
 
-    const loan =
-        loans.find(
-            loanRecord =>
-                Number(loanRecord.id) === Number(id)
-        );
+        if (emptyMessage) {
 
-
-    if (!loan) {
-
-        alert(
-            "Borrower record not found."
-        );
-
-        return;
-    }
+            emptyMessage.style.display =
+                "block";
+        }
 
 
-    selectedLoanId = id;
-
-
-    modalBorrowerName.textContent =
-        loan.borrower;
-
-
-    modalLoanAmount.textContent =
-        formatMoney(
-            loan.loanAmount
-        );
-
-
-    modalRepayAmount.textContent =
-        formatMoney(
-            loan.repayAmount
-        );
-
-
-    updateRepaymentModal();
-
-
-    repaymentModal.style.display =
-        "flex";
-}
-
-
-// ======================================================
-// UPDATE REPAYMENT MODAL
-// ======================================================
-
-function updateRepaymentModal() {
-
-    const loan =
-        loans.find(
-            loanRecord =>
-                Number(loanRecord.id) === Number(selectedLoanId)
-        );
-
-
-    if (!loan) return;
-
-
-    const paid =
-        getTotalPaid(loan);
-
-    const penalty =
-        getTotalPenalty(loan);
-
-    const balance =
-        getBalance(loan);
-
-
-    modalTotalPaid.textContent =
-        formatMoney(paid);
-
-
-    modalTotalPenalty.textContent =
-        formatMoney(penalty);
-
-
-    modalBalance.textContent =
-        formatMoney(balance);
-
-
-    displayRepaymentHistory(loan);
-}
-
-
-// ======================================================
-// DISPLAY PAYMENT HISTORY
-// ======================================================
-
-function displayRepaymentHistory(loan) {
-
-    repaymentHistory.innerHTML = "";
-
-
-    if (
-        !loan.repayments ||
-        loan.repayments.length === 0
-    ) {
-
-        repaymentHistory.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="5"
-                    style="text-align:center; padding:20px;"
-                >
-                    No repayment recorded yet.
-                </td>
-
-            </tr>
-
-        `;
+        updateLoanTableHeader();
 
         return;
+
+    } else {
+
+        if (emptyMessage) {
+
+            emptyMessage.style.display =
+                "none";
+        }
     }
 
 
-    loan.repayments.forEach(
-        function (payment) {
+    // ========================================================
+    // CREATE TABLE ROWS
+    // ========================================================
+
+    filteredLoans.forEach(
+        (loan, index) => {
+
+            const totalPaid =
+                getTotalPaid(loan);
+
+
+            const totalPenalty =
+                getTotalPenalty(loan);
+
+
+            const balance =
+                getBalance(loan);
+
 
             const row =
                 document.createElement("tr");
 
 
-            row.innerHTML = `
+            // =================================================
+            // ADMIN VIEW
+            // =================================================
 
-                <td>
-                    ${escapeHTML(payment.date)}
-                </td>
+            if (isAdminLoggedIn) {
 
-                <td>
-                    ${formatMoney(payment.amount)}
-                </td>
+                row.innerHTML = `
 
-                <td>
-                    ${formatMoney(payment.penalty)}
-                </td>
+                    <td>
+                        ${index + 1}
+                    </td>
 
-                <td>
-                    ${escapeHTML(
-                        payment.note || "No note"
-                    )}
-                </td>
+                    <td>
+                        ${escapeHTML(
+                            loan.borrower
+                        )}
+                    </td>
 
-                <td>
+                    <td>
+                        ${escapeHTML(
+                            loan.guarantor1
+                        )}
+                    </td>
 
-                    <button
-                        type="button"
-                        class="delete-btn repayment-delete-btn"
-                        data-payment-id="${payment.id}">
-                        Delete
-                    </button>
+                    <td>
+                        ${escapeHTML(
+                            loan.guarantor2
+                        )}
+                    </td>
 
-                </td>
-            `;
+                    <td>
+                        ${formatMoney(
+                            loan.loanAmount
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            loan.repayAmount
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            totalPaid
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            totalPenalty
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            balance
+                        )}
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="action-btn"
+                            onclick="openRepaymentModal(${loan.id})"
+                        >
+                            Repayment
+                        </button>
+
+                        <button
+                            class="action-btn"
+                            onclick="editLoan(${loan.id})"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            class="delete-btn"
+                            onclick="deleteLoan(${loan.id})"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+
+                `;
+
+            } else {
+
+                // =================================================
+                // PUBLIC VIEW
+                // =================================================
+
+                row.innerHTML = `
+
+                    <td>
+                        ${index + 1}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            loan.borrower
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            loan.guarantor1
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            loan.guarantor2
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            loan.loanAmount
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            loan.repayAmount
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            totalPaid
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            balance
+                        )}
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="action-btn"
+                            onclick="openRepaymentModal(${loan.id})"
+                        >
+                            Repayment
+                        </button>
+
+                    </td>
+
+                `;
+            }
 
 
-            repaymentHistory.appendChild(row);
+            loanTableBody.appendChild(row);
         }
     );
+
+
+    // Make sure header matches rows.
+
+    updateLoanTableHeader();
 }
 
 
-// ======================================================
-// DELETE REPAYMENT
-// ======================================================
-
-repaymentHistory.addEventListener(
-    "click",
-    function (event) {
-
-        const button =
-            event.target.closest(
-                ".repayment-delete-btn"
-            );
-
-
-        if (!button) return;
-
-
-        const paymentId =
-            Number(
-                button.dataset.paymentId
-            );
-
-
-        deleteRepayment(paymentId);
-    }
-);
-
-
-async function deleteRepayment(paymentId) {
-
-    const answer =
-        confirm(
-            "Are you sure you want to delete this repayment?"
-        );
-
-
-    if (!answer) return;
-
-
-    const { error } =
-        await supabaseClient
-            .from("repayments")
-            .delete()
-            .eq("id", paymentId);
-
-
-    if (error) {
-
-        console.error(
-            "Delete repayment error:",
-            error
-        );
-
-        alert(
-            "Unable to delete repayment.\n\n" +
-            error.message
-        );
-
-        return;
-    }
-
-
-    await loadLoans();
-
-
-    updateRepaymentModal();
-
-    renderLoans();
-
-    updateDashboard();
-
-
-    alert(
-        "Repayment deleted successfully."
-    );
-}
-
-
-// ======================================================
-// ADD REPAYMENT
-// ======================================================
-
-repaymentForm.addEventListener(
-    "submit",
-    async function (event) {
-
-        event.preventDefault();
-
-
-        const loan =
-            loans.find(
-                loanRecord =>
-                    Number(loanRecord.id) === Number(selectedLoanId)
-            );
-
-
-        if (!loan) {
-
-            alert(
-                "Borrower record not found."
-            );
-
-            return;
-        }
-
-
-        const date =
-            paymentDate.value;
-
-
-        const amount =
-            Number(
-                paymentAmount.value || 0
-            );
-
-
-        const penalty =
-            Number(
-                paymentPenalty.value || 0
-            );
-
-
-        const note =
-            paymentNote.value.trim();
-
-
-        if (!date) {
-
-            alert(
-                "Please select payment date."
-            );
-
-            return;
-        }
-
-
-        if (amount < 0) {
-
-            alert(
-                "Payment amount cannot be negative."
-            );
-
-            return;
-        }
-
-
-        if (penalty < 0) {
-
-            alert(
-                "Penalty cannot be negative."
-            );
-
-            return;
-        }
-
-
-        if (
-            amount === 0 &&
-            penalty === 0
-        ) {
-
-            alert(
-                "Please enter either a payment amount or a penalty."
-            );
-
-            return;
-        }
-
-
-        const balance =
-            getBalance(loan);
-
-
-        if (amount > balance) {
-
-            alert(
-                "Payment cannot be greater than the current balance of " +
-                formatMoney(balance)
-            );
-
-            return;
-        }
-
-
-        const { error } =
-            await supabaseClient
-                .from("repayments")
-                .insert({
-
-                    loan_id: loan.id,
-
-                    payment_date: date,
-
-                    payment_amount: amount,
-
-                    penalty: penalty,
-
-                    note: note
-
-                });
-
-
-        if (error) {
-
-            console.error(
-                "Insert repayment error:",
-                error
-            );
-
-            alert(
-                "Unable to save repayment.\n\n" +
-                error.message
-            );
-
-            return;
-        }
-
-
-        repaymentForm.reset();
-
-
-        await loadLoans();
-
-
-        updateRepaymentModal();
-
-        renderLoans();
-
-        updateDashboard();
-
-
-        alert(
-            "Repayment saved successfully."
-        );
-    }
-);
-
-
-// ======================================================
-// CLOSE REPAYMENT MODAL
-// ======================================================
-
-function closeRepaymentModal() {
-
-    repaymentModal.style.display =
-        "none";
-
-
-    selectedLoanId = null;
-
-
-    repaymentForm.reset();
-}
-
-
-// ======================================================
-// CLOSE MODAL BY CLICKING OUTSIDE
-// ======================================================
-
-window.addEventListener(
-    "click",
-    function (event) {
-
-        if (
-            event.target ===
-            repaymentModal
-        ) {
-
-            closeRepaymentModal();
-        }
-    }
-);
-
-
-// ======================================================
+// ============================================================
 // DASHBOARD
-// ======================================================
+// ============================================================
 
 function updateDashboard() {
 
-    totalBorrowers.textContent =
+    const borrowerCount =
         loans.length;
 
 
-    const totalLoanAmount =
+    const loanCount =
+        loans.length;
+
+
+    const repaid =
         loans.reduce(
-            function (total, loan) {
-
-                return total +
-                    Number(
-                        loan.loanAmount || 0
-                    );
-
-            },
-            0
-        );
-
-
-    const totalPaidAmount =
-        loans.reduce(
-            function (total, loan) {
+            (total, loan) => {
 
                 return total +
                     getTotalPaid(loan);
@@ -1447,9 +1118,9 @@ function updateDashboard() {
         );
 
 
-    const totalOutstandingAmount =
+    const outstanding =
         loans.reduce(
-            function (total, loan) {
+            (total, loan) => {
 
                 return total +
                     getBalance(loan);
@@ -1459,27 +1130,1126 @@ function updateDashboard() {
         );
 
 
-    totalLoans.textContent =
-        formatMoney(
-            totalLoanAmount
-        );
+    if (totalBorrowers) {
+
+        totalBorrowers.textContent =
+            borrowerCount;
+    }
 
 
-    totalRepaid.textContent =
-        formatMoney(
-            totalPaidAmount
-        );
+    if (totalLoans) {
+
+        totalLoans.textContent =
+            loanCount;
+    }
 
 
-    totalOutstanding.textContent =
-        formatMoney(
-            totalOutstandingAmount
-        );
+    if (totalRepaid) {
+
+        totalRepaid.textContent =
+            formatMoney(repaid);
+    }
+
+
+    if (totalOutstanding) {
+
+        totalOutstanding.textContent =
+            formatMoney(outstanding);
+    }
 }
 
 
-// ======================================================
+// ============================================================
+// ADD / UPDATE BORROWER
+// ============================================================
+
+if (loanForm) {
+
+    loanForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            if (!isAdminLoggedIn) {
+
+                alert(
+                    "Only the administrator can save borrowers."
+                );
+
+                return;
+            }
+
+
+            const borrower =
+                borrowerName.value.trim();
+
+
+            const guarantorOne =
+                guarantor1.value.trim();
+
+
+            const guarantorTwo =
+                guarantor2.value.trim();
+
+
+            const loanValue =
+                Number(
+                    loanAmount.value || 0
+                );
+
+
+            const repayValue =
+                Number(
+                    repayAmount.value || 0
+                );
+
+
+            if (!borrower) {
+
+                alert(
+                    "Please enter the borrower name."
+                );
+
+                return;
+            }
+
+
+            if (!guarantorOne) {
+
+                alert(
+                    "Please enter Guarantor 1."
+                );
+
+                return;
+            }
+
+
+            if (!guarantorTwo) {
+
+                alert(
+                    "Please enter Guarantor 2."
+                );
+
+                return;
+            }
+
+
+            if (loanValue <= 0) {
+
+                alert(
+                    "Please enter a valid loan amount."
+                );
+
+                return;
+            }
+
+
+            if (repayValue < 0) {
+
+                alert(
+                    "Repay amount cannot be negative."
+                );
+
+                return;
+            }
+
+
+            if (saveButton) {
+
+                saveButton.disabled =
+                    true;
+
+                saveButton.textContent =
+                    "Saving...";
+            }
+
+
+            let error;
+
+
+            // =================================================
+            // UPDATE
+            // =================================================
+
+            if (editingLoanId !== null) {
+
+                const result =
+                    await supabaseClient
+                        .from("loans")
+                        .update({
+
+                            borrower_name:
+                                borrower,
+
+                            guarantor1:
+                                guarantorOne,
+
+                            guarantor2:
+                                guarantorTwo,
+
+                            loan_amount:
+                                loanValue,
+
+                            repay_amount:
+                                repayValue
+
+                        })
+                        .eq(
+                            "id",
+                            editingLoanId
+                        );
+
+
+                error =
+                    result.error;
+
+
+            // =================================================
+            // INSERT
+            // =================================================
+
+            } else {
+
+                const result =
+                    await supabaseClient
+                        .from("loans")
+                        .insert({
+
+                            borrower_name:
+                                borrower,
+
+                            guarantor1:
+                                guarantorOne,
+
+                            guarantor2:
+                                guarantorTwo,
+
+                            loan_amount:
+                                loanValue,
+
+                            repay_amount:
+                                repayValue
+
+                        });
+
+
+                error =
+                    result.error;
+            }
+
+
+            if (error) {
+
+                console.error(
+                    "Save loan error:",
+                    error
+                );
+
+
+                alert(
+                    "Could not save borrower: " +
+                    error.message
+                );
+
+            } else {
+
+                alert(
+                    editingLoanId !== null
+                        ? "Borrower updated successfully."
+                        : "Borrower saved successfully."
+                );
+
+
+                resetLoanForm();
+
+
+                await loadLoans();
+            }
+
+
+            if (saveButton) {
+
+                saveButton.disabled =
+                    false;
+
+                saveButton.textContent =
+                    "Save Borrower";
+            }
+        }
+    );
+}
+
+
+// ============================================================
+// RESET LOAN FORM
+// ============================================================
+
+function resetLoanForm() {
+
+    editingLoanId = null;
+
+
+    if (loanForm) {
+
+        loanForm.reset();
+    }
+
+
+    if (formTitle) {
+
+        formTitle.textContent =
+            "Add Borrower";
+    }
+
+
+    if (saveButton) {
+
+        saveButton.textContent =
+            "Save Borrower";
+    }
+
+
+    if (cancelButton) {
+
+        cancelButton.style.display =
+            "none";
+    }
+}
+
+
+// ============================================================
+// CANCEL EDIT
+// ============================================================
+
+if (cancelButton) {
+
+    cancelButton.addEventListener(
+        "click",
+        function () {
+
+            resetLoanForm();
+        }
+    );
+}
+
+
+// ============================================================
+// EDIT LOAN
+// ============================================================
+
+window.editLoan =
+    function (id) {
+
+        if (!isAdminLoggedIn) {
+
+            alert(
+                "Only the administrator can edit borrowers."
+            );
+
+            return;
+        }
+
+
+        const loan =
+            loans.find(
+                item =>
+                    Number(item.id) ===
+                    Number(id)
+            );
+
+
+        if (!loan) {
+            return;
+        }
+
+
+        editingLoanId =
+            loan.id;
+
+
+        borrowerName.value =
+            loan.borrower || "";
+
+
+        guarantor1.value =
+            loan.guarantor1 || "";
+
+
+        guarantor2.value =
+            loan.guarantor2 || "";
+
+
+        loanAmount.value =
+            loan.loanAmount;
+
+
+        repayAmount.value =
+            loan.repayAmount;
+
+
+        if (formTitle) {
+
+            formTitle.textContent =
+                "Edit Borrower";
+        }
+
+
+        if (saveButton) {
+
+            saveButton.textContent =
+                "Update Borrower";
+        }
+
+
+        if (cancelButton) {
+
+            cancelButton.style.display =
+                "inline-block";
+        }
+
+
+        if (adminBorrowerForm) {
+
+            adminBorrowerForm.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+    };
+
+
+// ============================================================
+// DELETE LOAN
+// ============================================================
+
+window.deleteLoan =
+    async function (id) {
+
+        if (!isAdminLoggedIn) {
+
+            alert(
+                "Only the administrator can delete borrowers."
+            );
+
+            return;
+        }
+
+
+        const loan =
+            loans.find(
+                item =>
+                    Number(item.id) ===
+                    Number(id)
+            );
+
+
+        if (!loan) {
+            return;
+        }
+
+
+        const confirmed =
+            confirm(
+                "Are you sure you want to delete " +
+                loan.borrower +
+                "?\n\nAll repayment records for this borrower will also be deleted."
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("loans")
+                .delete()
+                .eq(
+                    "id",
+                    id
+                );
+
+
+        if (error) {
+
+            console.error(
+                "Delete loan error:",
+                error
+            );
+
+
+            alert(
+                "Could not delete borrower: " +
+                error.message
+            );
+
+
+            return;
+        }
+
+
+        alert(
+            "Borrower deleted successfully."
+        );
+
+
+        await loadLoans();
+    };
+
+
+// ============================================================
+// SEARCH
+// ============================================================
+
+if (searchInput) {
+
+    searchInput.addEventListener(
+        "input",
+        function () {
+
+            renderLoans(
+                searchInput.value
+            );
+        }
+    );
+}
+
+
+// ============================================================
+// OPEN REPAYMENT MODAL
+// ============================================================
+
+window.openRepaymentModal =
+    function (id) {
+
+        const loan =
+            loans.find(
+                item =>
+                    Number(item.id) ===
+                    Number(id)
+            );
+
+
+        if (!loan) {
+            return;
+        }
+
+
+        selectedLoanId =
+            loan.id;
+
+
+        updateRepaymentModal(
+            loan
+        );
+
+
+        if (repaymentModal) {
+
+            repaymentModal.style.display =
+                "block";
+        }
+    };
+
+
+// ============================================================
+// UPDATE REPAYMENT MODAL
+// ============================================================
+
+function updateRepaymentModal(loan) {
+
+    if (!loan) {
+        return;
+    }
+
+
+    if (modalBorrowerName) {
+
+        modalBorrowerName.textContent =
+            loan.borrower;
+    }
+
+
+    if (modalLoanAmount) {
+
+        modalLoanAmount.textContent =
+            formatMoney(
+                loan.loanAmount
+            );
+    }
+
+
+    if (modalRepayAmount) {
+
+        modalRepayAmount.textContent =
+            formatMoney(
+                loan.repayAmount
+            );
+    }
+
+
+    const totalPaid =
+        getTotalPaid(loan);
+
+
+    const totalPenalty =
+        getTotalPenalty(loan);
+
+
+    const balance =
+        getBalance(loan);
+
+
+    if (modalTotalPaid) {
+
+        modalTotalPaid.textContent =
+            formatMoney(
+                totalPaid
+            );
+    }
+
+
+    if (modalTotalPenalty) {
+
+        modalTotalPenalty.textContent =
+            formatMoney(
+                totalPenalty
+            );
+    }
+
+
+    if (modalBalance) {
+
+        modalBalance.textContent =
+            formatMoney(
+                balance
+            );
+    }
+
+
+    // ========================================================
+    // PENALTY SUMMARY
+    // ========================================================
+
+    const penaltySummaryBox =
+        modalTotalPenalty
+            ?.closest(".summary-box");
+
+
+    if (penaltySummaryBox) {
+
+        penaltySummaryBox.style.display =
+            isAdminLoggedIn
+                ? ""
+                : "none";
+    }
+
+
+    // ========================================================
+    // PENALTY INPUT
+    // ========================================================
+
+    const penaltyInputGroup =
+        paymentPenalty
+            ?.closest(".form-group");
+
+
+    if (penaltyInputGroup) {
+
+        penaltyInputGroup.style.display =
+            isAdminLoggedIn
+                ? ""
+                : "none";
+    }
+
+
+    // ========================================================
+    // REPAYMENT FORM
+    // ========================================================
+
+    if (repaymentForm) {
+
+        repaymentForm.style.display =
+            isAdminLoggedIn
+                ? ""
+                : "none";
+    }
+
+
+    displayRepaymentHistory(
+        loan
+    );
+}
+
+
+// ============================================================
+// REPAYMENT HISTORY
+// ============================================================
+
+function displayRepaymentHistory(loan) {
+
+    if (!repaymentHistory) {
+        return;
+    }
+
+
+    repaymentHistory.innerHTML = "";
+
+
+    const repayments =
+        loan.repayments || [];
+
+
+    if (repayments.length === 0) {
+
+        const row =
+            document.createElement("tr");
+
+
+        row.innerHTML = `
+
+            <td
+                colspan="${isAdminLoggedIn ? 5 : 4}"
+                style="text-align:center;"
+            >
+                No repayment records yet.
+            </td>
+
+        `;
+
+
+        repaymentHistory.appendChild(
+            row
+        );
+
+
+        return;
+    }
+
+
+    repayments.forEach(
+        repayment => {
+
+            const row =
+                document.createElement("tr");
+
+
+            // =================================================
+            // ADMIN HISTORY
+            // =================================================
+
+            if (isAdminLoggedIn) {
+
+                row.innerHTML = `
+
+                    <td>
+                        ${escapeHTML(
+                            repayment.date
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            repayment.amount
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            repayment.penalty
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            repayment.note
+                        )}
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="delete-btn"
+                            data-repayment-id="${repayment.id}"
+                        >
+                            Delete
+                        </button>
+
+                    </td>
+
+                `;
+
+            } else {
+
+                // =================================================
+                // PUBLIC HISTORY
+                // =================================================
+
+                row.innerHTML = `
+
+                    <td>
+                        ${escapeHTML(
+                            repayment.date
+                        )}
+                    </td>
+
+                    <td>
+                        ${formatMoney(
+                            repayment.amount
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHTML(
+                            repayment.note
+                        )}
+                    </td>
+
+                    <td>
+                        ${repayment.amount > 0
+                            ? "Payment"
+                            : "Record"}
+                    </td>
+
+                `;
+            }
+
+
+            repaymentHistory.appendChild(
+                row
+            );
+        }
+    );
+}
+
+
+// ============================================================
+// DELETE REPAYMENT
+// ============================================================
+
+if (repaymentHistory) {
+
+    repaymentHistory.addEventListener(
+        "click",
+        async function (event) {
+
+            const button =
+                event.target.closest(
+                    "[data-repayment-id]"
+                );
+
+
+            if (!button) {
+                return;
+            }
+
+
+            if (!isAdminLoggedIn) {
+
+                alert(
+                    "Only the administrator can delete repayment records."
+                );
+
+                return;
+            }
+
+
+            const repaymentId =
+                button.dataset.repaymentId;
+
+
+            const confirmed =
+                confirm(
+                    "Are you sure you want to delete this repayment record?"
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            const {
+                error
+            } =
+                await supabaseClient
+                    .from("repayments")
+                    .delete()
+                    .eq(
+                        "id",
+                        repaymentId
+                    );
+
+
+            if (error) {
+
+                console.error(
+                    "Delete repayment error:",
+                    error
+                );
+
+
+                alert(
+                    "Could not delete repayment: " +
+                    error.message
+                );
+
+
+                return;
+            }
+
+
+            await loadLoans();
+
+
+            const loan =
+                loans.find(
+                    item =>
+                        Number(item.id) ===
+                        Number(selectedLoanId)
+                );
+
+
+            if (loan) {
+
+                updateRepaymentModal(
+                    loan
+                );
+            }
+        }
+    );
+}
+
+
+// ============================================================
+// ADD REPAYMENT
+// ============================================================
+
+if (repaymentForm) {
+
+    repaymentForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+
+            if (!isAdminLoggedIn) {
+
+                alert(
+                    "Only the administrator can add repayments."
+                );
+
+                return;
+            }
+
+
+            if (selectedLoanId === null) {
+
+                alert(
+                    "No borrower selected."
+                );
+
+                return;
+            }
+
+
+            const date =
+                paymentDate.value;
+
+
+            const amount =
+                Number(
+                    paymentAmount.value || 0
+                );
+
+
+            const penalty =
+                Number(
+                    paymentPenalty.value || 0
+                );
+
+
+            const note =
+                paymentNote.value.trim();
+
+
+            if (!date) {
+
+                alert(
+                    "Please select the payment date."
+                );
+
+                return;
+            }
+
+
+            if (
+                amount < 0 ||
+                penalty < 0
+            ) {
+
+                alert(
+                    "Payment and penalty cannot be negative."
+                );
+
+                return;
+            }
+
+
+            // Allow payment-only,
+            // penalty-only,
+            // or payment + penalty.
+            //
+            // But do not save a completely empty record.
+
+            if (
+                amount === 0 &&
+                penalty === 0 &&
+                !note
+            ) {
+
+                alert(
+                    "Please enter a payment, penalty, or note."
+                );
+
+                return;
+            }
+
+
+            const {
+                error
+            } =
+                await supabaseClient
+                    .from("repayments")
+                    .insert({
+
+                        loan_id:
+                            selectedLoanId,
+
+                        payment_date:
+                            date,
+
+                        payment_amount:
+                            amount,
+
+                        penalty:
+                            penalty,
+
+                        note:
+                            note
+                    });
+
+
+            if (error) {
+
+                console.error(
+                    "Add repayment error:",
+                    error
+                );
+
+
+                alert(
+                    "Could not save repayment: " +
+                    error.message
+                );
+
+
+                return;
+            }
+
+
+            alert(
+                "Repayment record saved successfully."
+            );
+
+
+            // Clear form fields.
+
+            paymentAmount.value =
+                "0";
+
+
+            paymentPenalty.value =
+                "0";
+
+
+            paymentNote.value =
+                "";
+
+
+            await loadLoans();
+
+
+            const loan =
+                loans.find(
+                    item =>
+                        Number(item.id) ===
+                        Number(selectedLoanId)
+                );
+
+
+            if (loan) {
+
+                updateRepaymentModal(
+                    loan
+                );
+            }
+        }
+    );
+}
+
+
+// ============================================================
+// CLOSE REPAYMENT MODAL
+// ============================================================
+
+window.closeRepaymentModal =
+    function () {
+
+        selectedLoanId = null;
+
+
+        if (repaymentModal) {
+
+            repaymentModal.style.display =
+                "none";
+        }
+    };
+
+
+// ============================================================
+// CLOSE MODAL WHEN CLICKING OUTSIDE
+// ============================================================
+
+window.addEventListener(
+    "click",
+    function (event) {
+
+        if (
+            repaymentModal &&
+            event.target === repaymentModal
+        ) {
+
+            closeRepaymentModal();
+        }
+    }
+);
+
+
+// ============================================================
 // START APPLICATION
-// ======================================================
+// ============================================================
+
+// Check administrator login.
+
+checkAdminSession();
+
+
+// Load borrowers and repayments.
 
 loadLoans();
