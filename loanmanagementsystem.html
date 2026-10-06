@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Loan Management System</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+    <h1>Loan Management System</h1>
+    <p>Borrowers • Guarantors • Loans • Repayment History</p>
+</header>
+
+<!-- ADMIN LOGIN -->
+<div id="adminLoginBox" class="login-box">
+
+    <h2>Admin Login</h2>
+
+    <form id="loginForm">
+
+        <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input
+                type="email"
+                id="loginEmail"
+                placeholder="Enter admin email"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input
+                type="password"
+                id="loginPassword"
+                placeholder="Enter admin password"
+                required
+            >
+        </div>
+
+        <button type="submit" class="btn-primary">
+            Login
+        </button>
+
+    </form>
+
+    <p id="loginMessage"></p>
+
+</div>
+
+<!-- ADMIN STATUS -->
+<div id="adminStatusBox" class="login-box" style="display:none;">
+
+    <h2>Admin Access</h2>
+
+    <p id="adminStatusMessage">
+        You are logged in as administrator.
+    </p>
+
+    <button
+        type="button"
+        id="logoutButton"
+        class="btn-secondary"
+    >
+        Logout
+    </button>
+
+</div>
+
+
+<div class="container" id="mainApp">
+    <!-- DASHBOARD -->
+    <div class="dashboard">
+
+        <div class="card">
+            <h3>Total Borrowers</h3>
+            <p id="totalBorrowers">0</p>
+        </div>
+
+        <div class="card">
+            <h3>Total Loans</h3>
+            <p id="totalLoans">₦0.00</p>
+        </div>
+
+        <div class="card">
+            <h3>Total Repaid</h3>
+            <p id="totalRepaid">₦0.00</p>
+        </div>
+
+        <div class="card">
+            <h3>Total Outstanding</h3>
+            <p id="totalOutstanding">₦0.00</p>
+        </div>
+
+    </div>
+
+
+<!-- BORROWER FORM -->
+<div class="form-box" id="adminBorrowerForm">
+    
+        <h2 id="formTitle">Add New Borrower</h2>
+
+        <form id="loanForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="borrowerName">Borrower Name</label>
+                    <input
+                        type="text"
+                        id="borrowerName"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="guarantor1">Guarantor 1</label>
+                    <input
+                        type="text"
+                        id="guarantor1"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="guarantor2">Guarantor 2</label>
+                    <input
+                        type="text"
+                        id="guarantor2"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="loanAmount">Loan Amount</label>
+                    <input
+                        type="number"
+                        id="loanAmount"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="repayAmount">
+                        Total Amount to Repay
+                    </label>
+
+                    <input
+                        type="number"
+                        id="repayAmount"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="button-row">
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                    id="saveButton"
+                >
+                    Save Borrower
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn-secondary"
+                    id="cancelButton"
+                    style="display:none;"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- LOAN TABLE -->
+    <div class="table-box">
+
+        <h2>Borrowers</h2>
+
+
+        <div class="search-box">
+
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search borrower or guarantor..."
+            >
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Borrower</th>
+                        <th>Guarantor 1</th>
+                        <th>Guarantor 2</th>
+                        <th>Loan Amount</th>
+                        <th>Total Repay</th>
+                        <th>Paid</th>
+                        <th>Penalty</th>
+                        <th>Balance</th>
+                        <th>Actions</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="loanTableBody"></tbody>
+
+            </table>
+
+        </div>
+
+
+        <div
+            id="emptyMessage"
+            class="empty-message"
+        >
+            No borrowers found.
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- REPAYMENT MODAL -->
+
+<div
+    id="repaymentModal"
+    class="modal"
+>
+
+    <div class="modal-content">
+
+        <span
+            class="close"
+            onclick="closeRepaymentModal()"
+        >
+            &times;
+        </span>
+
+
+        <h2>Repayment History</h2>
+
+        <h3 id="modalBorrowerName"></h3>
+
+
+        <!-- SUMMARY -->
+
+        <div class="repayment-summary">
+
+            <div class="summary-box">
+                <h4>Loan Amount</h4>
+                <p id="modalLoanAmount">₦0.00</p>
+            </div>
+
+
+            <div class="summary-box">
+                <h4>Total Repayment</h4>
+                <p id="modalRepayAmount">₦0.00</p>
+            </div>
+
+
+            <div class="summary-box">
+
+                <h4>Total Paid</h4>
+
+                <p
+                    id="modalTotalPaid"
+                    class="paid"
+                >
+                    ₦0.00
+                </p>
+
+            </div>
+
+
+            <div class="summary-box">
+
+                <h4>Total Penalty</h4>
+
+                <p id="modalTotalPenalty">
+                    ₦0.00
+                </p>
+
+            </div>
+
+
+            <div class="summary-box">
+
+                <h4>Balance</h4>
+
+                <p
+                    id="modalBalance"
+                    class="balance"
+                >
+                    ₦0.00
+                </p>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ADD REPAYMENT -->
+
+        <div class="repayment-form">
+
+            <h3>Add Installment Payment</h3>
+
+
+            <form id="repaymentForm">
+
+                <div class="repayment-grid">
+
+
+                    <div>
+
+                        <label for="paymentDate">
+                            Payment Date
+                        </label>
+
+                        <input
+                            type="date"
+                            id="paymentDate"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="paymentAmount">
+                            Payment Amount
+                        </label>
+
+                        <input
+                            type="number"
+                            id="paymentAmount"
+                            min="0"
+                            step="0.01"
+                            value="0"
+                        >
+
+                    </div>
+
+
+                    <div>
+
+                        <label for="paymentPenalty">
+                            Penalty
+                        </label>
+
+                        <input
+                            type="number"
+                            id="paymentPenalty"
+                            min="0"
+                            step="0.01"
+                            value="0"
+                        >
+
+                    </div>
+
+
+                    <div class="full-width">
+
+                        <label for="paymentNote">
+                            Note
+                        </label>
+
+                        <textarea
+                            id="paymentNote"
+                            rows="2"
+                            placeholder="Example: Late payment, missed installment..."
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <br>
+
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Save Payment
+                </button>
+
+            </form>
+
+        </div>
+
+
+
+        <!-- PAYMENT HISTORY -->
+
+        <h3>Payment History</h3>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Date</th>
+                        <th>Payment</th>
+                        <th>Penalty</th>
+                        <th>Note</th>
+                        <th>Action</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="repaymentHistory"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- JAVASCRIPT -->
+
+<!--
+<script src="script.js"></script>
+-->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
