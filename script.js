@@ -732,7 +732,7 @@ function renderLoans(data = loans) {
 
                 <button
                     type="button"
-                    class="Repayment-btn"
+                    class="repayment-btn"
                     data-action="repayment"
                     data-id="${loan.id}">
                     History
