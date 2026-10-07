@@ -711,3 +711,54 @@ tr:hover {
         min-width: 650px;
     }
 }
+
+
+/* =================================
+   LOAN ACTION BUTTON COLOURS
+================================= */
+
+/* Repayment button - Blue */
+.repayment-btn {
+    background-color: #1976D2;
+    color: #FFFFFF;
+}
+
+/* Edit button - Amber/Gold */
+.edit-btn {
+    background-color: #F9A825;
+    color: #222222;
+}
+
+/* Delete button - Red */
+.delete-btn {
+    background-color: #C62828;
+    color: #FFFFFF;
+}
+
+/* Hover effects */
+.repayment-btn:hover {
+    background-color: #1259A7;
+}
+
+.edit-btn:hover {
+    background-color: #D48A00;
+    color: #FFFFFF;
+}
+
+.delete-btn:hover {
+    background-color: #9E1F1F;
+}
+
+/* Keep action buttons neat and consistent */
+.repayment-btn,
+.edit-btn,
+.delete-btn {
+    border: none;
+    padding: 8px 11px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
