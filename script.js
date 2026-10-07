@@ -354,9 +354,9 @@ async function loadLoans() {
     const { data, error } = await supabaseClient
         .from("loans")
         .select("*")
-        .order("id", {
-            ascending: false
-        });
+        .order("borrower_name", {
+        ascending: true
+    });
 
 
     if (error) {
