@@ -26,7 +26,9 @@ const logoutButton = document.getElementById("logoutButton");
 // Admin-only borrower form
 const adminBorrowerForm =
     document.getElementById("adminBorrowerForm");  
-
+// Dashboard financial/statistical information
+const dashboard =
+    document.querySelector(".dashboard");
 // Check current login session
 async function checkAdminSession() {
 
@@ -58,6 +60,11 @@ function updateAdminInterface(session) {
             adminBorrowerForm.style.display = "block";
         }
 
+        // Show dashboard statistics to admin
+        if (dashboard) {
+            dashboard.style.display = "grid";
+        }
+
     } else {
 
         // Nobody is logged in
@@ -68,9 +75,13 @@ function updateAdminInterface(session) {
         if (adminBorrowerForm) {
             adminBorrowerForm.style.display = "none";
         }
+
+        // Hide dashboard statistics from public
+        if (dashboard) {
+            dashboard.style.display = "none";
+        }
     }
 }
-
 // Login
 if (loginForm) {
 
