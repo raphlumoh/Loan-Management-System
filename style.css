@@ -719,7 +719,7 @@ tr:hover {
 
 /* Repayment button - Blue */
 .repayment-btn {
-    background-color: #1976D2;
+    background-color: #1d0be1;
     color: #FFFFFF;
 }
 
@@ -761,4 +761,132 @@ tr:hover {
     margin: 3px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+}
+
+
+/* =================================
+   ADMIN LOGIN - TOP CENTER
+================================= */
+
+#adminLoginBox {
+    width: 100%;
+    max-width: 430px;
+
+    margin: 25px auto 25px auto !important;
+
+    padding: 25px;
+
+    background: #ffffff;
+
+    border-radius: 10px;
+
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.10);
+
+    display: block !important;
+}
+
+/* Admin Login heading */
+#adminLoginBox h2 {
+    display: block !important;
+
+    width: 100% !important;
+
+    margin: 0 0 20px 0 !important;
+
+    text-align: center !important;
+
+    color: #126b35;
+
+    font-size: 24px;
+}
+
+/* Login form */
+#loginForm {
+    display: block !important;
+
+    width: 100% !important;
+
+    margin: 0 !important;
+}
+
+/* Email and Password groups */
+#loginForm .form-group {
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    width: 100% !important;
+
+    margin-bottom: 15px !important;
+}
+
+/* Labels */
+#loginForm .form-group label {
+    display: block !important;
+
+    width: 100% !important;
+
+    margin-bottom: 6px !important;
+
+    font-weight: bold;
+
+    color: #333;
+}
+
+/* Email and Password inputs */
+#loginForm .form-group input {
+    display: block !important;
+
+    width: 100% !important;
+
+    padding: 11px !important;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+
+    margin: 0 !important;
+}
+
+/* Login button */
+#loginForm button {
+    display: block !important;
+
+    width: 100% !important;
+
+    margin-top: 5px !important;
+
+    padding: 12px !important;
+
+    background: #126b35;
+
+    color: #ffffff;
+
+    border: none;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+/* Login button hover */
+#loginForm button:hover {
+    background: #0b4d27;
+
+    opacity: 1;
+}
+
+/* Login message */
+#loginMessage {
+    width: 100%;
+
+    text-align: center;
+
+    margin: 15px 0 0;
 }
